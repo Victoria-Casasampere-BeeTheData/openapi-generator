@@ -644,9 +644,6 @@ public class RustAxumServerCodegen extends AbstractRustCodegen implements Codege
             }
         }
 
-        LOGGER.error(String.valueOf(op.authMethods));
-        LOGGER.error(String.valueOf(op.hasAuthMethods));
-
         if (op.authMethods != null) {
             boolean headerAuthMethods = false;
 
