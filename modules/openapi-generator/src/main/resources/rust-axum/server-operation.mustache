@@ -7,6 +7,14 @@ async fn {{#vendorExtensions}}{{{x-operation-id}}}{{/vendorExtensions}}<I, A>(
 {{#headerParams.size}}
   headers: HeaderMap,
 {{/headerParams.size}}
+{{#vendorExtensions}}
+{{#x-has-basic-auth-method}}
+    basic_auth: axum_extra::TypedHeader<axum_extra::headers::Authorization<axum_extra::headers::authorization::Basic>>,
+{{/x-has-basic-auth-method}}
+{{#x-has-bearer-auth-method}}
+    bearer_auth: axum_extra::TypedHeader<axum_extra::headers::Authorization<axum_extra::headers::authorization::Bearer>>,
+{{/x-has-bearer-auth-method}}
+{{/vendorExtensions}}
 {{#pathParams.size}}
   Path(path_params): Path<models::{{{operationIdCamelCase}}}PathParams>,
 {{/pathParams.size}}
@@ -97,6 +105,7 @@ where
   {{/-last}}
 {{/headerParams}}
 
+  // TODO auth bearerFormat validator
   {{^disableValidator}}
     {{^allowBlockingValidator}}
       #[allow(clippy::redundant_closure)]
@@ -157,6 +166,14 @@ where
       {{#headerParams.size}}
         header_params,
       {{/headerParams.size}}
+      {{#vendorExtensions}}
+      {{#x-has-basic-auth-method}}
+          basic_auth,
+      {{/x-has-basic-auth-method}}
+      {{#x-has-bearer-auth-method}}
+          bearer_auth,
+      {{/x-has-bearer-auth-method}}
+      {{/vendorExtensions}}
       {{#pathParams.size}}
         path_params,
       {{/pathParams.size}}

@@ -24,16 +24,14 @@ import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.parameters.Parameter;
 import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.openapitools.codegen.*;
 import org.openapitools.codegen.meta.GeneratorMetadata;
 import org.openapitools.codegen.meta.Stability;
-import org.openapitools.codegen.meta.features.GlobalFeature;
-import org.openapitools.codegen.meta.features.ParameterFeature;
-import org.openapitools.codegen.meta.features.SchemaSupportFeature;
-import org.openapitools.codegen.meta.features.WireFormatFeature;
+import org.openapitools.codegen.meta.features.*;
 import org.openapitools.codegen.model.ModelMap;
 import org.openapitools.codegen.model.ModelsMap;
 import org.openapitools.codegen.model.OperationMap;
@@ -98,6 +96,10 @@ public class RustAxumServerCodegen extends AbstractRustCodegen implements Codege
                 .wireFormatFeatures(EnumSet.of(
                         WireFormatFeature.JSON,
                         WireFormatFeature.Custom
+                ))
+                .securityFeatures(EnumSet.of(
+                        SecurityFeature.BasicAuth,
+                        SecurityFeature.BearerToken
                 ))
                 .excludeGlobalFeatures(
                         GlobalFeature.Info,
@@ -641,6 +643,27 @@ public class RustAxumServerCodegen extends AbstractRustCodegen implements Codege
                 param.vendorExtensions.put("x-consumes-json", true);
             }
         }
+
+        LOGGER.error(String.valueOf(op.authMethods));
+        LOGGER.error(String.valueOf(op.hasAuthMethods));
+
+        if (op.authMethods != null) {
+            boolean headerAuthMethods = false;
+
+            for (CodegenSecurity s : op.authMethods) {
+                if (s.isBasicBasic) {
+                    headerAuthMethods = true;
+                    op.vendorExtensions.put("x-has-basic-auth-method", "true");
+                } else if (s.isBasicBearer) {
+                    headerAuthMethods = true;
+                    op.vendorExtensions.put("x-has-bearer-auth-method", "true");
+                }
+            }
+
+            if (headerAuthMethods) {
+                op.vendorExtensions.put("x-has-header-auth-methods", "true");
+            }
+        }
     }
 
     @Override
@@ -734,6 +757,21 @@ public class RustAxumServerCodegen extends AbstractRustCodegen implements Codege
                 .sorted(Comparator.comparing(a -> a.path))
                 .collect(Collectors.toList());
         bundle.put("pathMethodOps", pathMethodOps);
+
+
+        // Flag whether we have any OAuth scopes
+        Map<String, SecurityScheme> securitySchemeMap = openAPI.getComponents() != null ? openAPI.getComponents().getSecuritySchemes() : null;
+        List<CodegenSecurity> authMethods = fromSecurity(securitySchemeMap);
+        boolean hasAuthScopes = false;
+        if (authMethods != null && !authMethods.isEmpty()) {
+            for (CodegenSecurity authMethod : authMethods) {
+                if (authMethod.hasScopes != null && authMethod.hasScopes) {
+                    hasAuthScopes = true;
+                    break;
+                }
+            }
+        }
+        bundle.put("hasAuthScopes", hasAuthScopes);
 
         return super.postProcessSupportingFileData(bundle);
     }

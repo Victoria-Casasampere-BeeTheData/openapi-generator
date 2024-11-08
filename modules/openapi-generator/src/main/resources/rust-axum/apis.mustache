@@ -1,6 +1,21 @@
 use async_trait::async_trait;
 use axum::extract::*;
 use axum_extra::extract::{CookieJar, Multipart};
+{{#operations}}
+{{#operation}}
+{{#vendorExtensions}}
+{{#x-has-header-auth-methods}}
+    use axum_extra::{TypedHeader, headers::Authorization};
+    {{#x-has-basic-auth-method}}
+        use axum_extra::headers::authorization::Basic;
+    {{/x-has-basic-auth-method}}
+    {{#x-has-bearer-auth-method}}
+        use axum_extra::headers::authorization::Bearer;
+    {{/x-has-bearer-auth-method}}
+{{/x-has-header-auth-methods}}
+{{/vendorExtensions}}
+{{/operation}}
+{{/operations}}
 use bytes::Bytes;
 use http::Method;
 use serde::{Deserialize, Serialize};
@@ -26,13 +41,19 @@ pub trait {{classnamePascalCase}} {
   {{#vendorExtensions}}
     /// {{{operationId}}} - {{{httpMethod}}} {{{basePathWithoutHost}}}{{{path}}}
     async fn {{{x-operation-id}}}(
-    &self,
+    &self, // TEST
     method: Method,
     host: Host,
     cookies: CookieJar,
     {{#headerParams.size}}
       header_params: models::{{{operationIdCamelCase}}}HeaderParams,
     {{/headerParams.size}}
+    {{#x-has-basic-auth-method}}
+        basic_auth: TypedHeader<Authorization<Basic>>,
+    {{/x-has-basic-auth-method}}
+    {{#x-has-bearer-auth-method}}
+            bearer_auth: TypedHeader<Authorization<Bearer>>,
+    {{/x-has-bearer-auth-method}}
     {{#pathParams.size}}
       path_params: models::{{{operationIdCamelCase}}}PathParams,
     {{/pathParams.size}}
