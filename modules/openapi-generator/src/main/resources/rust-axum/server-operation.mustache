@@ -319,9 +319,10 @@ where
                                                 },
 {{/responses}}
                                             },
-                                            Err(_) => {
+                                            Err(why) => {
                                                 // Application code returned an error. This should not happen, as the implementation should
                                                 // return a valid response.
+                                                tracing::error!("{{#vendorExtensions}}{{{x-operation-id}}}{{/vendorExtensions}}: {:?}", why);
                                                 response.status(500).body(Body::empty())
                                             },
                                         };

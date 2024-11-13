@@ -41,7 +41,7 @@ pub trait {{classnamePascalCase}} {
   {{#vendorExtensions}}
     /// {{{operationId}}} - {{{httpMethod}}} {{{basePathWithoutHost}}}{{{path}}}
     async fn {{{x-operation-id}}}(
-    &self, // TEST
+    &self,
     method: Method,
     host: Host,
     cookies: CookieJar,

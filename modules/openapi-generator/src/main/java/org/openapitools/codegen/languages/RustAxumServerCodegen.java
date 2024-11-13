@@ -564,6 +564,10 @@ public class RustAxumServerCodegen extends AbstractRustCodegen implements Codege
                     }
                 }
             }
+
+            for (CodegenProperty header : rsp.headers) {
+                header.nameInLowerCase = header.baseName.toLowerCase(Locale.ROOT);
+            }
         }
 
         // Include renderUuidConversionImpl exactly once in the vendorExtensions map when 
