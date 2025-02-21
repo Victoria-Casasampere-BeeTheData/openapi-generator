@@ -1,0 +1,30 @@
+From 362773a4b351376499d2b669ba4f4da4d2af3bf3 Mon Sep 17 00:00:00 2001
+From: Juuso Tuononen <jutuon@outlook.com>
+Date: Wed, 15 Jan 2025 12:39:01 +0200
+Subject: [PATCH] [dart][dart-dio] Support OpenAPI 3.1 composed schemas
+
+---
+ .../openapitools/codegen/languages/AbstractDartCodegen.java    | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/modules/openapi-generator/src/main/java/org/openapitools/codegen/languages/AbstractDartCodegen.java b/modules/openapi-generator/src/main/java/org/openapitools/codegen/languages/AbstractDartCodegen.java
+index 3c3c91b9c7b1..b646ca13d55c 100644
+--- a/modules/openapi-generator/src/main/java/org/openapitools/codegen/languages/AbstractDartCodegen.java
++++ b/modules/openapi-generator/src/main/java/org/openapitools/codegen/languages/AbstractDartCodegen.java
+@@ -2,7 +2,6 @@
+ 
+ import com.google.common.collect.Sets;
+ import io.swagger.v3.oas.models.Operation;
+-import io.swagger.v3.oas.models.media.ComposedSchema;
+ import io.swagger.v3.oas.models.media.Schema;
+ import io.swagger.v3.oas.models.media.StringSchema;
+ import io.swagger.v3.oas.models.servers.Server;
+@@ -593,7 +592,7 @@ public CodegenProperty fromProperty(String name, Schema p, boolean required) {
+ 
+         // Handle composed properties and it's NOT allOf with a single ref only
+         if (ModelUtils.isComposedSchema(p) && !(ModelUtils.isAllOf(p) && p.getAllOf().size() == 1)) {
+-            ComposedSchema composed = (ComposedSchema) p;
++            Schema<Object> composed = (Schema<Object>) p;
+ 
+             // Count the occurrences of allOf/anyOf/oneOf with exactly one child element
+             long count = Stream.of(composed.getAllOf(), composed.getAnyOf(), composed.getOneOf())
